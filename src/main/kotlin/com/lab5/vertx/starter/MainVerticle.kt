@@ -6,30 +6,24 @@ import io.vertx.core.Vertx
 
 class MainVerticle : AbstractVerticle() {
 
-  override fun start(startPromise: Promise<Void>) {
-    vertx
-      .createHttpServer()
-      .requestHandler { req ->
-        req.response()
-          .putHeader("content-type", "text/plain")
-          .end("Hello from Vert.x!")
-      }
-      .listen(8888) { http ->
-        if (http.succeeded()) {
-          startPromise.complete()
-          println("HTTP server started on port 8888")
-        } else {
-          startPromise.fail(http.cause());
-        }
-      }
+  override fun start(startPromise: Promise<Void>){
+    val steps = startDataBase().future().compose(){
+      v -> startHttpServer().future();
+    }
+    steps.setHandler(startPromise.future().completer());
+  }
+
+  fun startDataBase():Promise<Void>{
+    val promise = Promise.promise<Void>();
+
+    return promise;
+  }
+
+  fun startHttpServer():Promise<Void>{
+    val promise = Promise.promise<Void>();
+
+    return promise;
   }
 
 }
 
-fun main(args: Array<String>){
-  println("Hello world")
-  var vertx:Vertx = Vertx.vertx();
-  var verticle:MainVerticle = MainVerticle();
-  vertx.deployVerticle(verticle)
-  println("Hello world")
-}
